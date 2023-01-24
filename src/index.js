@@ -15,6 +15,7 @@ btnLoadMore.style.display = 'none';
 
 function onBtnSearch(e) {
   e.preventDefault();
+  cleanGallery();
   const inputValue = input.value;
 
   if (inputValue !== '') {
@@ -80,6 +81,12 @@ function renderImageList(images) {
   new SimpleLightbox('.gallery a', {
     captionDelay: 250,
   });
+}
+
+function cleanGallery() {
+  gallery.innerHTML = '';
+  pageNumber = 1;
+  btnLoadMore.style.display = 'none';
 }
 
 // Слухачі
