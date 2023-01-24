@@ -10,26 +10,37 @@ const btnLoadMore = document.querySelector('.load-more');
 
 let pageNumber = 1;
 btnLoadMore.style.display = 'none';
+let currentValue = '';
 
 // Кнопка пошуку
 
 async function onBtnSearch(e) {
   e.preventDefault();
-  cleanGallery();
-  const inputValue = input.value;
 
-  if (inputValue !== '') {
+  const inputValue = input.value.trim();
+
+  if (inputValue.trim() !== '') {
     const foundData = await fetchImages(inputValue, pageNumber);
-    if (foundData.data.hits.length === 0) {
-      Notiflix.Notify.failure(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
+    if (currentValue !== inputValue) {
+      cleanGallery();
+      if (foundData.data.hits.length === 0) {
+        Notiflix.Notify.failure(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+      } else {
+        currentValue = inputValue;
+        renderImageList(foundData.data.hits);
+        Notiflix.Notify.success(
+          `Hooray! We found ${foundData.data.total} images.`
+        );
+        if (foundData.data.hits.length < 40) {
+          btnLoadMore.style.display = 'none';
+        } else {
+          btnLoadMore.style.display = 'flex';
+        }
+      }
     } else {
-      renderImageList(foundData.data.hits);
-      Notiflix.Notify.success(
-        `Hooray! We found ${foundData.data.total} images.`
-      );
-      btnLoadMore.style.display = 'flex';
+      return;
     }
   }
 }
@@ -38,8 +49,7 @@ async function onBtnSearch(e) {
 
 async function onBtnLoadMore() {
   pageNumber++;
-  const inputValue = input.value;
-  const foundData = await fetchImages(inputValue, pageNumber);
+  const foundData = await fetchImages(currentValue, pageNumber);
 
   if (foundData.data.hits.length === 0) {
     Notiflix.Notify.failure(
@@ -48,6 +58,9 @@ async function onBtnLoadMore() {
   } else {
     renderImageList(foundData.data.hits);
     Notiflix.Notify.success(`Hooray! We found ${foundData.data.total} images.`);
+    if (foundData.data.hits.length < 40) {
+      btnLoadMore.style.display = 'none';
+    }
   }
 }
 
