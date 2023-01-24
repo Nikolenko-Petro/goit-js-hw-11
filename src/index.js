@@ -13,34 +13,13 @@ btnLoadMore.style.display = 'none';
 
 // Кнопка пошуку
 
-function onBtnSearch(e) {
+async function onBtnSearch(e) {
   e.preventDefault();
   cleanGallery();
   const inputValue = input.value;
 
   if (inputValue !== '') {
-    fetchImages(inputValue, pageNumber).then(foundData => {
-      if (foundData.data.hits.length === 0) {
-        Notiflix.Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-      } else {
-        renderImageList(foundData.data.hits);
-        Notiflix.Notify.success(
-          `Hooray! We found ${foundData.data.total} images.`
-        );
-        btnLoadMore.style.display = 'flex';
-      }
-    });
-  }
-}
-
-// Кнопка Завантажити більше
-
-function onBtnLoadMore() {
-  pageNumber++;
-  const inputValue = input.value;
-  fetchImages(inputValue, pageNumber).then(foundData => {
+    const foundData = await fetchImages(inputValue, pageNumber);
     if (foundData.data.hits.length === 0) {
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
@@ -50,8 +29,26 @@ function onBtnLoadMore() {
       Notiflix.Notify.success(
         `Hooray! We found ${foundData.data.total} images.`
       );
+      btnLoadMore.style.display = 'flex';
     }
-  });
+  }
+}
+
+// Кнопка Завантажити більше
+
+async function onBtnLoadMore() {
+  pageNumber++;
+  const inputValue = input.value;
+  const foundData = await fetchImages(inputValue, pageNumber);
+
+  if (foundData.data.hits.length === 0) {
+    Notiflix.Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+  } else {
+    renderImageList(foundData.data.hits);
+    Notiflix.Notify.success(`Hooray! We found ${foundData.data.total} images.`);
+  }
 }
 
 // Cтворення розмітки
